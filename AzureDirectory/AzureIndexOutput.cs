@@ -1,15 +1,9 @@
-﻿//    License: Microsoft Public License (Ms-PL) 
+﻿using Microsoft.WindowsAzure.Storage.Blob;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Lucene.Net;
-using Lucene.Net.Store;
-using System.IO;
 using System.Diagnostics;
+using System.IO;
 using System.IO.Compression;
 using System.Threading;
-using Microsoft.WindowsAzure.Storage.Blob;
 
 
 namespace Lucene.Net.Store.Azure
@@ -29,7 +23,7 @@ namespace Lucene.Net.Store.Azure
 
         public AzureIndexOutput(AzureDirectory azureDirectory, ICloudBlob blob)
         {
-            _fileMutex = BlobMutexManager.GrabMutex(_name);
+            _fileMutex = BlobMutexManager.GrabMutex(_name); 
             _fileMutex.WaitOne();
             try
             {
@@ -66,47 +60,13 @@ namespace Lucene.Net.Store.Azure
                 _indexOutput.Dispose();
 
                 Stream blobStream;
-#if COMPRESSBLOBS
 
                 // optionally put a compressor around the blob stream
                 if (_azureDirectory.ShouldCompressFile(_name))
                 {
-                    // unfortunately, deflate stream doesn't allow seek, and we need a seekable stream
-                    // to pass to the blob storage stuff, so we compress into a memory stream
-                    MemoryStream compressedStream = new MemoryStream();
-
-                    try
-                    {
-                        IndexInput indexInput = CacheDirectory.OpenInput(fileName);
-                        using (DeflateStream compressor = new DeflateStream(compressedStream, CompressionMode.Compress, true))
-                        {
-                            // compress to compressedOutputStream
-                            byte[] bytes = new byte[indexInput.Length()];
-                            indexInput.ReadBytes(bytes, 0, (int)bytes.Length);
-                            compressor.Write(bytes, 0, (int)bytes.Length);
-                        }
-                        indexInput.Close();
-
-                        // seek back to beginning of comrpessed stream
-                        compressedStream.Seek(0, SeekOrigin.Begin);
-
-                        Debug.WriteLine(string.Format("COMPRESSED {0} -> {1} {2}% to {3}",
-                           originalLength,
-                           compressedStream.Length,
-                           ((float)compressedStream.Length / (float)originalLength) * 100,
-                           _name));
-                    }
-                    catch
-                    {
-                        // release the compressed stream resources if an error occurs
-                        compressedStream.Dispose();
-                        throw;
-                    }
-
-                    blobStream = compressedStream;
+                    blobStream = CompressStream(fileName, originalLength);
                 }
                 else
-#endif
                 {
                     blobStream = new StreamInput(CacheDirectory.OpenInput(fileName));
                 }
@@ -141,6 +101,41 @@ namespace Lucene.Net.Store.Azure
             {
                 _fileMutex.ReleaseMutex();
             }
+        }
+
+        private MemoryStream CompressStream(string fileName, long originalLength)
+        {
+            // unfortunately, deflate stream doesn't allow seek, and we need a seekable stream
+            // to pass to the blob storage stuff, so we compress into a memory stream
+            MemoryStream compressedStream = new MemoryStream();
+
+            try
+            {
+                using (var indexInput = CacheDirectory.OpenInput(fileName))
+                using (var compressor = new DeflateStream(compressedStream, CompressionMode.Compress, true))
+                {
+                    // compress to compressedOutputStream
+                    byte[] bytes = new byte[indexInput.Length()];
+                    indexInput.ReadBytes(bytes, 0, (int)bytes.Length);
+                    compressor.Write(bytes, 0, (int)bytes.Length);
+                }
+
+                // seek back to beginning of comrpessed stream
+                compressedStream.Seek(0, SeekOrigin.Begin);
+
+                Debug.WriteLine(string.Format("COMPRESSED {0} -> {1} {2}% to {3}",
+                   originalLength,
+                   compressedStream.Length,
+                   ((float)compressedStream.Length / (float)originalLength) * 100,
+                   _name));
+            }
+            catch
+            {
+                // release the compressed stream resources if an error occurs
+                compressedStream.Dispose();
+                throw;
+            }
+            return compressedStream;
         }
 
         public override long Length
@@ -180,4 +175,3 @@ namespace Lucene.Net.Store.Azure
         }
     }
 }
-

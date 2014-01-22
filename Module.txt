@@ -4,10 +4,10 @@ Author: Lombiq
 Website: http://lombiq.com
 Version: 1.0
 OrchardVersion: 1.8
-Description: Adapting Lucene indexing to the Azure environment. Uses the Azure Directory project (https://azuredirectory.codeplex.com/).
+Description: Adapting Lucene indexing to the Azure environment. Uses the Azure Directory project (https://azuredirectory.codeplex.com/ and its fork: https://github.com/richorama/AzureDirectory).
 Features:
     Lombiq.Hosting.Azure.Lucene:
 		Name: Hosting - Azure Lucene
-        Description: Adapting Lucene indexing to the Azure environment. Uses the Azure Directory project (https://azuredirectory.codeplex.com/).
+        Description: Adapting Lucene indexing to the Azure environment. Uses the Azure Directory project (https://azuredirectory.codeplex.com/ and its fork: https://github.com/richorama/AzureDirectory).
 		Category: Hosting
 		Dependencies: Lucene, Orchard.Azure

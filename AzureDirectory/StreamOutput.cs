@@ -1,10 +1,5 @@
-﻿//    License: Microsoft Public License (Ms-PL) 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System;
 using System.IO;
-using Lucene.Net.Store;
 
 namespace Lucene.Net.Store.Azure
 {
@@ -13,7 +8,7 @@ namespace Lucene.Net.Store.Azure
     /// </summary>
     public class StreamOutput : Stream
     {
-        public IndexOutput Output { get; set; }
+        public IndexOutput Output { get;set;}
 
         public StreamOutput(IndexOutput output)
         {
@@ -73,7 +68,7 @@ namespace Lucene.Net.Store.Azure
                     Output.Seek(Output.FilePointer + offset);
                     break;
                 case SeekOrigin.End:
-                    throw new System.NotImplementedException();
+                    throw new NotImplementedException();
             }
             return Output.FilePointer;
         }
@@ -96,4 +91,3 @@ namespace Lucene.Net.Store.Azure
         }
     }
 }
-
