@@ -1,13 +1,18 @@
-﻿Name: Hosting - Azure Lucene
+﻿Name: Hosting - Azure Indexing
 AntiForgery: enabled
 Author: Lombiq
 Website: http://lombiq.com
 Version: 1.0
 OrchardVersion: 1.8
-Description: Adapting Lucene indexing to the Azure environment. Uses the Azure Directory project (https://azuredirectory.codeplex.com/ and its fork: https://github.com/richorama/AzureDirectory).
+Description: Adapting indexing services to the Azure environment.
 Features:
-    Lombiq.Hosting.Azure.Lucene:
-		Name: Hosting - Azure Lucene
+    Lombiq.Hosting.Azure.Indexing:
+		Name: Hosting - Azure Indexing
+        Description: Adapting indexing services to the Azure environment.
+		Category: Hosting
+		Dependencies: Orchard.Azure, Orchard.Indexing
+    Lombiq.Hosting.Azure.Indexing.Lucene:
+		Name: Hosting - Azure Lucene Indexing
         Description: Adapting Lucene indexing to the Azure environment. Uses the Azure Directory project (https://azuredirectory.codeplex.com/ and its fork: https://github.com/richorama/AzureDirectory).
 		Category: Hosting
-		Dependencies: Lucene, Orchard.Azure
+		Dependencies: Lombiq.Hosting.Azure.Indexing, Lucene

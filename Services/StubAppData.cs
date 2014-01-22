@@ -4,11 +4,11 @@ using System.Linq;
 using System.Web;
 using Orchard.FileSystems.AppData;
 
-namespace Lombiq.Hosting.Azure.Lucene.Services
+namespace Lombiq.Hosting.Azure.Indexing.Services
 {
     /// <summary>
     /// Serves only to be fed to <see cref="Lucene.Services.LuceneIndexProvider"/>. Any method in the class that would use 
-    /// <see cref="Orchard.FileSystems.AppData.IAppDataFolder"/> is overridden from <see cref="Lombiq.Hosting.Azure.Lucene.Services.AzureLuceneIndexProvider"/>.
+    /// <see cref="Orchard.FileSystems.AppData.IAppDataFolder"/> is overridden from <see cref="Lombiq.Hosting.Azure.Indexing.Services.AzureLuceneIndexProvider"/>.
     /// </summary>
     internal class StubAppData : IAppDataFolder
     {

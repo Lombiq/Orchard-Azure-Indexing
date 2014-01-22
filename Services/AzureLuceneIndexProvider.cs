@@ -15,9 +15,10 @@ using Orchard.Environment.Extensions;
 using Orchard.FileSystems.AppData;
 using Orchard.Indexing;
 
-namespace Lombiq.Hosting.Azure.Lucene.Services
+namespace Lombiq.Hosting.Azure.Indexing.Services
 {
     [OrchardSuppressDependency("Lucene.Services.LuceneIndexProvider")]
+    [OrchardFeature("Lombiq.Hosting.Azure.Indexing.Lucene")]
     public class AzureLuceneIndexProvider : LuceneIndexProvider, IIndexProvider
     {
         private readonly AzureFileSystem _fileSystem;
