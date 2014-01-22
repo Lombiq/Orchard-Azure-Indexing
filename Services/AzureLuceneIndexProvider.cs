@@ -9,6 +9,7 @@ using Lucene.Services;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Orchard.Azure.Services.Environment.Configuration;
+using Orchard.Azure.Services.FileSystems;
 using Orchard.Environment.Configuration;
 using Orchard.Environment.Extensions;
 using Orchard.FileSystems.AppData;
@@ -19,8 +20,7 @@ namespace Lombiq.Hosting.Azure.Lucene.Services
     [OrchardSuppressDependency("Lucene.Services.LuceneIndexProvider")]
     public class AzureLuceneIndexProvider : LuceneIndexProvider, IIndexProvider
     {
-        private readonly CloudStorageAccount _storageAccount;
-
+        private readonly AzureFileSystem _fileSystem;
         private readonly IAppDataFolder _appDataFolder;
         private readonly ShellSettings _shellSettings;
 
@@ -31,30 +31,26 @@ namespace Lombiq.Hosting.Azure.Lucene.Services
             _appDataFolder = appDataFolder;
             _shellSettings = shellSettings;
 
-            // Not nice in the ctor but since this is a singleton it's simpler than caring about locking and happens once anyway.
             var storageConnectionString = PlatformConfiguration.GetSetting(Constants.LuceneStorageStorageConnectionStringSettingName, _shellSettings.Name) ?? "UseDevelopmentStorage=true";
-            _storageAccount = CloudStorageAccount.Parse(storageConnectionString);
-
-            var blobClient = _storageAccount.CreateCloudBlobClient();
-            var container = blobClient.GetContainerReference("search-indices");
-            container.CreateIfNotExists(BlobContainerPublicAccessType.Off);
+            _fileSystem = new AzureFileSystem(storageConnectionString, "lucene", _shellSettings.Name, true, null);
         }
 
 
         bool IIndexProvider.Exists(string name)
         {
-            return false;
-            throw new NotImplementedException();
+            return _fileSystem.FolderExists(name);
         }
 
         IEnumerable<string> IIndexProvider.List()
         {
-            return Enumerable.Empty<string>();
+            // Will list the pseudo-folders of the indices.
+            if (!_fileSystem.FolderExists(string.Empty)) return Enumerable.Empty<string>();
+            return _fileSystem.ListFolders(string.Empty).Select(file => file.GetName());
         }
 
         void IIndexProvider.DeleteIndex(string name)
         {
-            throw new NotImplementedException();
+            _fileSystem.DeleteFolder(name);
         }
 
         bool IIndexProvider.IsEmpty(string indexName)
@@ -86,17 +82,13 @@ namespace Lombiq.Hosting.Azure.Lucene.Services
 
         protected override Directory GetDirectory(string indexName)
         {
-            if (_storageAccount == null)
-            {
-                //var blobClient = _storageAccount.CreateCloudBlobClient();
-                //var container = blobClient.GetContainerReference("search-indices");
-                //container.CreateIfNotExists(BlobContainerPublicAccessType.Off);
-            }
-
-            var cacheDirectoryPath = _appDataFolder.Combine("Sites", _shellSettings.Name, "IndexCaches", indexName);
+            var cacheDirectoryPath = _appDataFolder.Combine("Sites", _shellSettings.Name, "IndexingCache", indexName);
             var cacheDirectoryInfo = new System.IO.DirectoryInfo(_appDataFolder.MapPath(cacheDirectoryPath));
 
-            return new AzureDirectory(_storageAccount, "search-indices", FSDirectory.Open(cacheDirectoryInfo));
+            return new AzureDirectory(
+                _fileSystem.Container,
+                _shellSettings.Name + "/" + indexName,
+                FSDirectory.Open(cacheDirectoryInfo));
         }
     }
 }

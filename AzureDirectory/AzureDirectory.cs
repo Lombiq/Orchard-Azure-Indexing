@@ -16,81 +16,19 @@ using System.Configuration;
 using System.Xml.Serialization;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.WindowsAzure.Storage;
+using Orchard.Azure.Services.FileSystems;
 
 namespace Lucene.Net.Store.Azure
 {
     public class AzureDirectory : Directory
     {
-        private string _catalog;
-        private CloudBlobClient _blobClient;
+        private readonly string _root;
+        public string Root { get { return _root; } }
+
         private CloudBlobContainer _blobContainer;
+        public CloudBlobContainer BlobContainer { get { return _blobContainer; } }
+
         private Directory _cacheDirectory;
-
-        #region CTOR
-        public AzureDirectory(CloudStorageAccount storageAccount) :
-            this(storageAccount, null, null)
-        {
-        }
-
-        /// <summary>
-        /// Create AzureDirectory
-        /// </summary>
-        /// <param name="storageAccount">staorage account to use</param>
-        /// <param name="catalog">name of catalog (folder in blob storage)</param>
-        /// <remarks>Default local cache is to use file system in user/appdata/AzureDirectory/Catalog</remarks>
-        public AzureDirectory(
-            CloudStorageAccount storageAccount,
-            string catalog)
-            : this(storageAccount, catalog, null)
-        {
-        }
-
-        /// <summary>
-        /// Create an AzureDirectory
-        /// </summary>
-        /// <param name="storageAccount">storage account to use</param>
-        /// <param name="catalog">name of catalog (folder in blob storage)</param>
-        /// <param name="cacheDirectory">local Directory object to use for local cache</param>
-        public AzureDirectory(
-            CloudStorageAccount storageAccount,
-            string catalog,
-            Directory cacheDirectory)
-        {
-            if (storageAccount == null)
-                throw new ArgumentNullException("storageAccount");
-
-            if (string.IsNullOrEmpty(catalog))
-                _catalog = "lucene";
-            else
-                _catalog = catalog.ToLower();
-
-            _blobClient = storageAccount.CreateCloudBlobClient();
-            _initCacheDirectory(cacheDirectory);
-        }
-
-        public CloudBlobContainer BlobContainer
-        {
-            get
-            {
-                return _blobContainer;
-            }
-        }
-
-#if COMPRESSBLOBS
-        public bool CompressBlobs
-        {
-            get;
-            set;
-        }
-#endif
-        public void ClearCache()
-        {
-            foreach (string file in _cacheDirectory.ListAll())
-            {
-                _cacheDirectory.DeleteFile(file);
-            }
-        }
-
         public Directory CacheDirectory
         {
             get
@@ -102,62 +40,54 @@ namespace Lucene.Net.Store.Azure
                 _cacheDirectory = value;
             }
         }
-        #endregion
 
-        #region internal methods
-        private void _initCacheDirectory(Directory cacheDirectory)
-        {
 #if COMPRESSBLOBS
-            CompressBlobs = true;
-#endif
-            if (cacheDirectory != null)
-            {
-                // save it off
-                _cacheDirectory = cacheDirectory;
-            }
-            else
-            {
-                string cachePath = System.IO.Path.Combine(Environment.ExpandEnvironmentVariables("%temp%"), "AzureDirectory");
-                System.IO.DirectoryInfo azureDir = new System.IO.DirectoryInfo(cachePath);
-                if (!azureDir.Exists)
-                    azureDir.Create();
-
-                string catalogPath = System.IO.Path.Combine(cachePath, _catalog);
-                System.IO.DirectoryInfo catalogDir = new System.IO.DirectoryInfo(catalogPath);
-                if (!catalogDir.Exists)
-                    catalogDir.Create();
-
-                _cacheDirectory = FSDirectory.Open(catalogPath);
-            }
-
-            CreateContainer();
-        }
-
-        public void CreateContainer()
+        public bool CompressBlobs
         {
-            _blobContainer = _blobClient.GetContainerReference(_catalog);
-
-            // create it if it does not exist
-            _blobContainer.CreateIfNotExists();
+            get;
+            set;
         }
-        #endregion
+#endif
+
+
+        public AzureDirectory(CloudBlobContainer blobContainer, string root, Directory cacheDirectory)
+        {
+            if (blobContainer == null)
+                throw new ArgumentNullException("blobContainer");
+            if (cacheDirectory == null)
+                throw new ArgumentNullException("cacheDirectory");
+
+            _blobContainer = blobContainer;
+            _root = string.IsNullOrEmpty(root) ? string.Empty : root + "/";
+            _cacheDirectory = cacheDirectory;
+        }
+
+
+        public void ClearCache()
+        {
+            foreach (string file in _cacheDirectory.ListAll())
+            {
+                _cacheDirectory.DeleteFile(file);
+            }
+        }
+
 
         #region DIRECTORY METHODS
         /// <summary>Returns an array of strings, one for each file in the directory. </summary>
-        public override System.String[] ListAll()
+        public override string[] ListAll()
         {
-            var results = from blob in _blobContainer.ListBlobs()
+            var results = from blob in _blobContainer.ListBlobs(_root)
                           select blob.Uri.AbsolutePath.Substring(blob.Uri.AbsolutePath.LastIndexOf('/') + 1);
-            return results.ToArray<string>();
+            return results.ToArray();
         }
 
         /// <summary>Returns true if a file with the given name exists. </summary>
-        public override bool FileExists(System.String name)
+        public override bool FileExists(string name)
         {
             // this always comes from the server
             try
             {
-                var blob = _blobContainer.GetBlockBlobReference(name);
+                var blob = _blobContainer.GetBlockBlobReference(_root + name);
                 blob.FetchAttributes();
                 return true;
             }
@@ -168,12 +98,12 @@ namespace Lucene.Net.Store.Azure
         }
 
         /// <summary>Returns the time the named file was last modified. </summary>
-        public override long FileModified(System.String name)
+        public override long FileModified(string name)
         {
             // this always has to come from the server
             try
             {
-                var blob = _blobContainer.GetBlockBlobReference(name);
+                var blob = _blobContainer.GetBlockBlobReference(_root + name);
                 blob.FetchAttributes();
                 return blob.Properties.LastModified.Value.UtcDateTime.ToFileTimeUtc();
             }
@@ -184,22 +114,17 @@ namespace Lucene.Net.Store.Azure
         }
 
         /// <summary>Set the modified time of an existing file to now. </summary>
-        public override void TouchFile(System.String name)
+        public override void TouchFile(string name)
         {
-            //BlobProperties props = _blobContainer.GetBlobProperties(name);
-            //_blobContainer.UpdateBlobMetadata(props);
-            // I have no idea what the semantics of this should be...hmmmm...
-            // we never seem to get called
-            _cacheDirectory.TouchFile(name);
-            //SetCachedBlobProperties(props);
+            _cacheDirectory.TouchFile(_root + name);
         }
 
         /// <summary>Removes an existing file in the directory. </summary>
-        public override void DeleteFile(System.String name)
+        public override void DeleteFile(string name)
         {
-            var blob = _blobContainer.GetBlockBlobReference(name);
+            var blob = _blobContainer.GetBlockBlobReference(_root + name);
             blob.DeleteIfExists();
-            Debug.WriteLine(String.Format("DELETE {0}/{1}", _blobContainer.Uri.ToString(), name));
+            Debug.WriteLine(String.Format("DELETE {0}/{1}", _blobContainer.Uri.ToString(), _root + name));
 
             if (_cacheDirectory.FileExists(name + ".blob"))
                 _cacheDirectory.DeleteFile(name + ".blob");
@@ -208,37 +133,10 @@ namespace Lucene.Net.Store.Azure
                 _cacheDirectory.DeleteFile(name);
         }
 
-        /*
-        /// <summary>Renames an existing file in the directory.
-        /// If a file already exists with the new name, then it is replaced.
-        /// This replacement should be atomic. 
-        /// </summary>
-        public void RenameFile(System.String from, System.String to)
-        {
-            try
-            {
-                var blobFrom = _blobContainer.GetBlockBlobReference(from);
-                var blobTo = _blobContainer.GetBlockBlobReference(to);
-                blobTo.CopyFromBlob(blobFrom);
-                blobFrom.DeleteIfExists();
-
-                // we delete and force a redownload, since we can't do this in an atomic way
-                if (_cacheDirectory.FileExists(from))
-                    _cacheDirectory.RenameFile(from, to);
-
-                // drop old cached data as it's wrong now
-                if (_cacheDirectory.FileExists(from + ".blob"))
-                    _cacheDirectory.DeleteFile(from + ".blob");
-            }
-            catch
-            {
-            }
-        }*/
-
         /// <summary>Returns the length of a file in the directory. </summary>
-        public override long FileLength(System.String name)
+        public override long FileLength(string name)
         {
-            var blob = _blobContainer.GetBlockBlobReference(name);
+            var blob = _blobContainer.GetBlockBlobReference(_root + name);
             blob.FetchAttributes();
 
             // index files may be compressed so the actual length is stored in metatdata
@@ -252,18 +150,18 @@ namespace Lucene.Net.Store.Azure
         /// <summary>Creates a new, empty file in the directory with the given name.
         /// Returns a stream writing this file. 
         /// </summary>
-        public override IndexOutput CreateOutput(System.String name)
+        public override IndexOutput CreateOutput(string name)
         {
-            var blob = _blobContainer.GetBlockBlobReference(name);
+            var blob = _blobContainer.GetBlockBlobReference(_root + name);
             return new AzureIndexOutput(this, blob);
         }
 
         /// <summary>Returns a stream reading an existing file. </summary>
-        public override IndexInput OpenInput(System.String name)
+        public override IndexInput OpenInput(string name)
         {
             try
             {
-                var blob = _blobContainer.GetBlockBlobReference(name);
+                var blob = _blobContainer.GetBlockBlobReference(_root + name);
                 blob.FetchAttributes();
                 AzureIndexInput input = new AzureIndexInput(this, blob);
                 return input;
@@ -279,7 +177,7 @@ namespace Lucene.Net.Store.Azure
         /// <summary>Construct a {@link Lock}.</summary>
         /// <param name="name">the name of the lock file
         /// </param>
-        public override Lock MakeLock(System.String name)
+        public override Lock MakeLock(string name)
         {
             lock (_locks)
             {
@@ -305,7 +203,6 @@ namespace Lucene.Net.Store.Azure
         protected override void Dispose(bool disposing)
         {
             _blobContainer = null;
-            _blobClient = null;
         }
         #endregion
 
