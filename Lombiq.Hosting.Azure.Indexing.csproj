@@ -10,8 +10,8 @@
     <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Lombiq.Hosting.Azure.Lucene</RootNamespace>
-    <AssemblyName>Lombiq.Hosting.Azure.Lucene</AssemblyName>
+    <RootNamespace>Lombiq.Hosting.Azure.Indexing</RootNamespace>
+    <AssemblyName>Lombiq.Hosting.Azure.Indexing</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <MvcBuildViews>false</MvcBuildViews>
     <FileUpgradeFlags>
@@ -124,10 +124,12 @@
     <Compile Include="Constants.cs" />
     <Compile Include="Migrations.cs" />
     <Compile Include="Models\AppDataFileRecord.cs" />
+    <Compile Include="Services\LuceneAzureFileSystemFactory.cs" />
     <Compile Include="Services\AzureLuceneIndexProvider.cs" />
     <Compile Include="Services\DbAppDataFolder.cs" />
     <Compile Include="Services\DistributedLockManagerAdapter.cs" />
     <Compile Include="Services\IndexingTaskExecutorModule.cs" />
+    <Compile Include="Services\LuceneIndexRemovalService.cs" />
     <Compile Include="Services\StubAppDataFolder.cs" />
   </ItemGroup>
   <ItemGroup />

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using Lombiq.Hosting.Azure.Lucene.Services;
 using Lucene.Net.Index;
 using Lucene.Net.Store;
 using Lucene.Net.Store.Azure;
@@ -26,14 +27,16 @@ namespace Lombiq.Hosting.Azure.Indexing.Services
         private readonly ShellSettings _shellSettings;
 
 
-        public AzureLuceneIndexProvider(IAppDataFolder appDataFolder, ShellSettings shellSettings)
+        public AzureLuceneIndexProvider(
+            IAppDataFolder appDataFolder,
+            ShellSettings shellSettings,
+            ILuceneAzureFileSystemFactory fileSystemFactory)
             : base(new StubAppData(appDataFolder), shellSettings)
         {
             _appDataFolder = appDataFolder;
             _shellSettings = shellSettings;
 
-            var storageConnectionString = PlatformConfiguration.GetSetting(Constants.LuceneStorageStorageConnectionStringSettingName, _shellSettings.Name) ?? "UseDevelopmentStorage=true";
-            _fileSystem = new AzureFileSystem(storageConnectionString, "lucene", _shellSettings.Name, true, null);
+            _fileSystem = fileSystemFactory.Create(shellSettings.Name);
         }
 
 
