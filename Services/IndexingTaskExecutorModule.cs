@@ -9,6 +9,8 @@ using Autofac;
 using Orchard.FileSystems.AppData;
 using Orchard.Data;
 using Lombiq.Hosting.Azure.Lucene.Models;
+using Piedone.HelpfulLibraries.Tasks.Locking;
+using Orchard.FileSystems.LockFile;
 
 namespace Lombiq.Hosting.Azure.Lucene.Services
 {
@@ -22,7 +24,12 @@ namespace Lombiq.Hosting.Azure.Lucene.Services
 
                     // Changing the IAppDataFolder implementation to our own.
                     var dbAppDataFolder = new DbAppDataFolder(e.Context.Resolve<IRepository<AppDataFileRecord>>());
-                    e.Parameters = e.Parameters.Concat(new[] { new TypedParameter(typeof(IAppDataFolder), dbAppDataFolder) });
+                    var lockFileManager = new DistributedLockManagerAdapter(e.Context.Resolve<IDistributedLockManager>());
+                    e.Parameters = e.Parameters.Concat(new[]
+                    {
+                        new TypedParameter(typeof(IAppDataFolder), dbAppDataFolder),
+                        new TypedParameter(typeof(ILockFileManager), lockFileManager)
+                    });
                 };
         }
     }
