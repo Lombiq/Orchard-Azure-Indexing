@@ -20,7 +20,7 @@ namespace Lombiq.Hosting.Azure.Lucene.Services
         {
             registration.Preparing += (sender, e) =>
                 {
-                    if (e.Component.Activator.LimitType.Name != typeof(IndexingTaskExecutor).Name) return;
+                    if (e.Component.Activator.LimitType != typeof(IndexingTaskExecutor)) return;
 
                     // Changing the IAppDataFolder implementation to our own.
                     var dbAppDataFolder = new DbAppDataFolder(e.Context.Resolve<IRepository<AppDataFileRecord>>());
