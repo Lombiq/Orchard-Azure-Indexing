@@ -5,7 +5,7 @@ using System.Web;
 using Orchard;
 using Orchard.Environment.Extensions;
 
-namespace Lombiq.Hosting.Azure.Lucene.Services
+namespace Lombiq.Hosting.Azure.Indexing.Services
 {
     public interface ILuceneIndexRemovalService : IDependency
     {

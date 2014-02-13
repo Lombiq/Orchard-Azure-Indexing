@@ -47,10 +47,6 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Autofac, Version=3.0.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\lib\autofac\Autofac.dll</HintPath>
-    </Reference>
     <Reference Include="Lucene.Net">
       <HintPath>..\..\..\..\lib\lucene.net\Lucene.Net.dll</HintPath>
     </Reference>
@@ -122,13 +118,8 @@
     <Compile Include="AzureDirectory\StreamInput.cs" />
     <Compile Include="AzureDirectory\StreamOutput.cs" />
     <Compile Include="Constants.cs" />
-    <Compile Include="Migrations.cs" />
-    <Compile Include="Models\AppDataFileRecord.cs" />
     <Compile Include="Services\LuceneAzureFileSystemFactory.cs" />
     <Compile Include="Services\AzureLuceneIndexProvider.cs" />
-    <Compile Include="Services\DbAppDataFolder.cs" />
-    <Compile Include="Services\DistributedLockManagerAdapter.cs" />
-    <Compile Include="Services\IndexingTaskExecutorModule.cs" />
     <Compile Include="Services\LuceneIndexRemovalService.cs" />
     <Compile Include="Services\StubAppDataFolder.cs" />
   </ItemGroup>

@@ -8,7 +8,7 @@ using Orchard.Azure.Services.Environment.Configuration;
 using Orchard.Azure.Services.FileSystems;
 using Orchard.Environment.Extensions;
 
-namespace Lombiq.Hosting.Azure.Lucene.Services
+namespace Lombiq.Hosting.Azure.Indexing.Services
 {
     public interface ILuceneAzureFileSystemFactory : IDependency
     {

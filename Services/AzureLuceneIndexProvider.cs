@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using Lombiq.Hosting.Azure.Lucene.Services;
 using Lucene.Net.Index;
 using Lucene.Net.Store;
 using Lucene.Net.Store.Azure;
