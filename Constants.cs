@@ -10,6 +10,6 @@ namespace Lombiq.Hosting.Azure.Indexing
         /// <summary>
         /// Configuration key for the connection string of the Azure storage account that will be used to store the Lucene indices.
         /// </summary>
-        public const string LuceneStorageStorageConnectionStringSettingName = "Lombiq.Hosting.Azure.IndexingStorageConnectionString";
+        public const string LuceneStorageStorageConnectionStringSettingName = "Lombiq.Hosting.Azure.Indexing.StorageConnectionString";
     }
 }
