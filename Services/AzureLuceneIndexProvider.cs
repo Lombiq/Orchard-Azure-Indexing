@@ -22,6 +22,7 @@ namespace Lombiq.Hosting.Azure.Indexing.Services
     public class AzureLuceneIndexProvider : LuceneIndexProvider, IIndexProvider
     {
         private readonly AzureFileSystem _fileSystem;
+        private readonly CloudStorageAccount _storageAccount;
         private readonly IAppDataFolder _appDataFolder;
         private readonly ShellSettings _shellSettings;
 
@@ -36,6 +37,7 @@ namespace Lombiq.Hosting.Azure.Indexing.Services
             _shellSettings = shellSettings;
 
             _fileSystem = fileSystemFactory.Create(shellSettings.Name);
+            _storageAccount = CloudStorageAccount.Parse(_fileSystem.StorageConnectionString);
         }
 
 
@@ -89,9 +91,11 @@ namespace Lombiq.Hosting.Azure.Indexing.Services
             var cacheDirectoryInfo = new System.IO.DirectoryInfo(_appDataFolder.MapPath(cacheDirectoryPath));
 
             return new AzureDirectory(
-                _fileSystem.Container,
-                _shellSettings.Name + "/" + indexName,
-                FSDirectory.Open(cacheDirectoryInfo));
+                _storageAccount,
+                "lucene",
+                FSDirectory.Open(cacheDirectoryInfo),
+                false,
+                _shellSettings.Name + "/" + indexName);
         }
     }
 }

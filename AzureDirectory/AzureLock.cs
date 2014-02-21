@@ -136,6 +136,7 @@ namespace Lucene.Net.Store.Azure
         {
             if (err.RequestInformation.HttpStatusCode == 404 || err.RequestInformation.HttpStatusCode == 409)
             {
+                _azureDirectory.CreateContainer();
                 using (var stream = new MemoryStream())
                 using (var writer = new StreamWriter(stream))
                 {
