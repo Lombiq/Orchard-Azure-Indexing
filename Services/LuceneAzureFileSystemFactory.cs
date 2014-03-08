@@ -19,9 +19,18 @@ namespace Lombiq.Hosting.Azure.Indexing.Services
     [OrchardFeature("Lombiq.Hosting.Azure.Indexing.Lucene")]
     public class LuceneAzureFileSystemFactory : ILuceneAzureFileSystemFactory
     {
+        private readonly IPlatformConfigurationAccessor _pca;
+
+
+        public LuceneAzureFileSystemFactory(IPlatformConfigurationAccessor pca)
+        {
+            _pca = pca;
+        }
+
+
         public AzureFileSystem Create(string shellName)
         {
-            var storageConnectionString = PlatformConfiguration.GetSetting(Constants.LuceneStorageStorageConnectionStringSettingName, shellName) ?? "UseDevelopmentStorage=true";
+            var storageConnectionString = _pca.GetSetting(Constants.LuceneStorageStorageConnectionStringSettingName, shellName, null) ?? "UseDevelopmentStorage=true";
             return new AzureFileSystem(storageConnectionString, "lucene", shellName, true, null);
         }
     }
