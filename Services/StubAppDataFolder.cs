@@ -10,12 +10,12 @@ namespace Lombiq.Hosting.Azure.Indexing.Services
     /// Serves only to be fed to <see cref="Lucene.Services.LuceneIndexProvider"/>. Any method in the class that would use 
     /// <see cref="Orchard.FileSystems.AppData.IAppDataFolder"/> is overridden from <see cref="Lombiq.Hosting.Azure.Indexing.Services.AzureLuceneIndexProvider"/>.
     /// </summary>
-    internal class StubAppData : IAppDataFolder
+    internal class StubAppDataFolder : IAppDataFolder
     {
         private readonly IAppDataFolder _appDataFolder;
 
 
-        public StubAppData(IAppDataFolder appDataFolder)
+        public StubAppDataFolder(IAppDataFolder appDataFolder)
         {
             _appDataFolder = appDataFolder;
         }

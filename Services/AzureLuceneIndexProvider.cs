@@ -31,7 +31,7 @@ namespace Lombiq.Hosting.Azure.Indexing.Services
             IAppDataFolder appDataFolder,
             ShellSettings shellSettings,
             ILuceneAzureFileSystemFactory fileSystemFactory)
-            : base(new StubAppData(appDataFolder), shellSettings)
+            : base(new StubAppDataFolder(appDataFolder), shellSettings)
         {
             _appDataFolder = appDataFolder;
             _shellSettings = shellSettings;
