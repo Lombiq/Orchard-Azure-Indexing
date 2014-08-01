@@ -107,7 +107,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Readme.md" />
+    <None Include="Readme.md" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AzureDirectory\AzureDirectory.cs" />
