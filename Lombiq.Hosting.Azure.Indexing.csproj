@@ -107,6 +107,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Licence.md" />
     <None Include="Readme.md" />
   </ItemGroup>
   <ItemGroup>
