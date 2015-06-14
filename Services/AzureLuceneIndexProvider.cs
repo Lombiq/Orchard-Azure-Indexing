@@ -30,8 +30,9 @@ namespace Lombiq.Hosting.Azure.Indexing.Services
         public AzureLuceneIndexProvider(
             IAppDataFolder appDataFolder,
             ShellSettings shellSettings,
+            ILuceneAnalyzerProvider analyzerProvider,
             ILuceneAzureFileSystemFactory fileSystemFactory)
-            : base(new StubAppDataFolder(appDataFolder), shellSettings)
+            : base(new StubAppDataFolder(appDataFolder), shellSettings, analyzerProvider)
         {
             _appDataFolder = appDataFolder;
             _shellSettings = shellSettings;
