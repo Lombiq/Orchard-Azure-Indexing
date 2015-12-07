@@ -2,6 +2,7 @@
 
 
 
+
 ## Project Description
 
 Orchard module with a search indexing implementation that stores Lucene indices in Azure Blob storage.
