@@ -14,6 +14,8 @@ The module uses AzureDirectory to store Lucene search indices in Azure Blob stor
 
 AzureDirectory is included as source to avoid a mismatch of assemblies (the project used a previous version of Azure assemblies). The actual code that's included is from https://github.com/richorama/AzureDirectory.
 
+The module is also available for [DotNest](http://dotnest.com/) sites.
+
 The module's source is available in two public source repositories, automatically mirrored in both directions with [Git-hg Mirror](https://githgmirror.com):
 
 - [https://bitbucket.org/Lombiq/hosting-azure-indexing](https://bitbucket.org/Lombiq/hosting-azure-indexing) (Mercurial repository)
