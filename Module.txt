@@ -10,7 +10,7 @@ Features:
         Name: Hosting - Azure Indexing
         Description: Adapting indexing services to the Azure environment.
         Category: Hosting
-        Dependencies: Orchard.Azure
+        Dependencies: Orchard.Azure, Orchard.Indexing
     Lombiq.Hosting.Azure.Indexing.Lucene:
         Name: Hosting - Azure Lucene Indexing
         Description: Adapting Lucene indexing to the Azure environment. Uses the Azure Directory project (https://azuredirectory.codeplex.com/ and its fork: https://github.com/richorama/AzureDirectory).
