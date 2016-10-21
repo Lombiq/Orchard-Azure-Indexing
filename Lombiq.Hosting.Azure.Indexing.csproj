@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -96,15 +96,15 @@
       <Name>Orchard.Core</Name>
       <Private>false</Private>
     </ProjectReference>
-    <ProjectReference Include="$(ModulesRoot)..\Lucene\Lucene.csproj">
+    <ProjectReference Include="$(ModulesRoot)..\..\Modules\Lucene\Lucene.csproj">
       <Project>{d5d447d7-ef8e-43a6-b9a4-3b025dd9f45d}</Project>
       <Name>Lucene</Name>
     </ProjectReference>
-    <ProjectReference Include="$(ModulesRoot)..\Orchard.Azure\Orchard.Azure.csproj">
+    <ProjectReference Include="$(ModulesRoot)..\..\Modules\Orchard.Azure\Orchard.Azure.csproj">
       <Project>{cbc7993c-57d8-4a6c-992c-19e849dfe71d}</Project>
       <Name>Orchard.Azure</Name>
     </ProjectReference>
-    <ProjectReference Include="$(ModulesRoot)..\Orchard.Indexing\Orchard.Indexing.csproj">
+    <ProjectReference Include="$(ModulesRoot)..\..\Modules\Orchard.Indexing\Orchard.Indexing.csproj">
       <Project>{ea2b9121-ef54-40a6-a53e-6593c86ee696}</Project>
       <Name>Orchard.Indexing</Name>
     </ProjectReference>
